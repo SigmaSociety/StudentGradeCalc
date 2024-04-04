@@ -1,2 +1,2 @@
 # StudentGradeCalc
-Calculate your grade xdd
+Calculate your grade xddd
