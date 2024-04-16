@@ -130,17 +130,26 @@ public class StudentGradeCalc {
     }
 
     /**
-     * Read and print grades from file.
+     * Read and print grades from file. If the file doesn't exist, create it.
      */
     private static void readGradeFile() {
-        try (Scanner fileScanner = new Scanner(new File("Grade.txt"))) {
-            System.out.println("\nGrades from Grade.txt:");
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine();
-                System.out.println(line);
+        File gradeFile = new File("Grade.txt");
+        try {
+            if (!gradeFile.exists()) {
+                gradeFile.createNewFile();
+                System.out.println("Grade.txt file created.");
+                return;
             }
-        } catch (FileNotFoundException e) {
-            System.err.println("Grade.txt file not found.");
+
+            try (Scanner fileScanner = new Scanner(gradeFile)) {
+                System.out.println("\nGrades from Grade.txt:");
+                while (fileScanner.hasNextLine()) {
+                    String line = fileScanner.nextLine();
+                    System.out.println(line);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error accessing Grade.txt: " + e.getMessage());
         }
     }
 }
