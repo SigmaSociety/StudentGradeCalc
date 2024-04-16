@@ -1,20 +1,73 @@
 import java.io.*;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class StudentGradeCalc {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Welcome to the Student Grade Calculator!");
+        System.out.println("Do you want to calculate grades? (yes/no)");
+        String calculateChoice = scanner.next();
+
+        if (calculateChoice.equalsIgnoreCase("yes")) {
+            calculateGrades(scanner);
+        } else if (calculateChoice.equalsIgnoreCase("no")) {
+            System.out.println("Do you want to print grades from Grade.txt? (yes/no)");
+            String printChoice = scanner.next();
+            if (printChoice.equalsIgnoreCase("yes")) {
+                readGradeFile();
+            }
+        } else {
+            System.out.println("Invalid choice. Exiting program.");
+        }
+
+        System.out.println("Goodbye!");
+        scanner.close();
+    }
+
+    private static void calculateGrades(Scanner scanner) {
         boolean addMoreCourses = true;
 
+        displayInstructions();
+
         while (addMoreCourses) {
-            System.out.println("Enter the course name:");
+            scanner.nextLine();
+
+            System.out.println("\nEnter the course name:");
             String courseName = scanner.nextLine();
 
-            System.out.println("Enter the maximum points for the course:");
-            double maxPoints = scanner.nextDouble();
+            double maxPoints = 0;
+            double pointsGot = 0;
+            boolean validInput = false;
 
-            System.out.println("Enter the points you got:");
-            double pointsGot = scanner.nextDouble();
+            while (!validInput) {
+                System.out.println("Enter the maximum points for the course:");
+                try {
+                    maxPoints = scanner.nextDouble();
+                    validInput = true;
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a numeric value.");
+                    scanner.next();
+                }
+            }
+
+            validInput = false;
+
+            while (!validInput) {
+                System.out.println("Enter the points you got:");
+                try {
+                    pointsGot = scanner.nextDouble();
+                    if (pointsGot > maxPoints) {
+                        System.out.println("Points obtained cannot be greater than maximum points.");
+                        continue;
+                    }
+                    validInput = true;
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a numeric value.");
+                    scanner.next();
+                }
+            }
 
             double gradePercentage = (pointsGot / maxPoints) * 100;
             System.out.printf("Your grade for %s is: %.1f%%\n", courseName, gradePercentage);
@@ -26,15 +79,12 @@ public class StudentGradeCalc {
             addMoreCourses = choice.equalsIgnoreCase("yes");
             scanner.nextLine();
         }
+    }
 
-        System.out.println("Do you want to list your grades? (yes/no)");
-        String printChoice = scanner.next();
-        if (printChoice.equalsIgnoreCase("yes")) {
-            readGradeFile();
-        }
-
-        System.out.println("Goodbye!");
-        scanner.close();
+    private static void displayInstructions() {
+        System.out.println("Please enter the details for each course you want to calculate the grade for.");
+        System.out.println("You can choose to add multiple courses.");
+        System.out.println("Once you finish adding courses, you can choose to print the grades from Grade.txt file.");
     }
 
     private static void saveGradeToFile(String courseName, double gradePercentage) {
