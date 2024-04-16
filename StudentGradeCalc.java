@@ -1,62 +1,59 @@
-import java.util.InputMismatchException;
+import java.io.*;
 import java.util.Scanner;
 
 public class StudentGradeCalc {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        boolean addMoreCourses = true;
 
-        boolean calculateAnotherGrade = true;
+        while (addMoreCourses) {
+            System.out.println("Enter the course name:");
+            String courseName = scanner.nextLine();
 
-        while (calculateAnotherGrade) {
-            try {
-                // Prompt the user to enter course details
-                System.out.print("Enter the course name: ");
-                String courseName = scanner.nextLine();
+            System.out.println("Enter the maximum points for the course:");
+            double maxPoints = scanner.nextDouble();
 
-                System.out.print("Enter the maximum points for the course: ");
-                double maxPoints = scanner.nextDouble();
+            System.out.println("Enter the points you got:");
+            double pointsGot = scanner.nextDouble();
 
-                System.out.print("Enter the points obtained: ");
-                double pointsObtained = scanner.nextDouble();
+            double gradePercentage = (pointsGot / maxPoints) * 100;
+            System.out.printf("Your grade for %s is: %.1f%%\n", courseName, gradePercentage);
 
-                // Validate inputs
-                if (maxPoints <= 0 || pointsObtained < 0) {
-                    System.out.println("Please enter valid positive numbers.");
-                    continue; // Restart the loop to prompt again
-                }
+            saveGradeToFile(courseName, gradePercentage);
 
-                // Calculate the grade and clamp it to a maximum of 100%
-                double grade = Math.min((pointsObtained / maxPoints) * 100, 100);
-
-                // Print the grade
-                System.out.println("The grade for " + courseName + " is: " + grade);
-
-                // Ask if the user wants to calculate another grade
-                boolean validResponse = false;
-                while (!validResponse) {
-                    System.out.print("Do you want to calculate another grade? (yes/no): ");
-                    String response = scanner.next();
-                    if (response.equalsIgnoreCase("yes")) {
-                        calculateAnotherGrade = true;
-                        validResponse = true;
-                    } else if (response.equalsIgnoreCase("no")) {
-                        calculateAnotherGrade = false;
-                        validResponse = true;
-                    } else {
-                        System.out.println("Please enter 'yes' or 'no'.");
-                    }
-                }
-
-                // Consume the newline character after reading the response
-                scanner.nextLine();
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-                scanner.nextLine(); // Clear the invalid input
-            }
+            System.out.println("Do you want to add more courses? (yes/no)");
+            String choice = scanner.next();
+            addMoreCourses = choice.equalsIgnoreCase("yes");
+            scanner.nextLine();
         }
 
-        // Close the scanner
+        System.out.println("Do you want to list your grades? (yes/no)");
+        String printChoice = scanner.next();
+        if (printChoice.equalsIgnoreCase("yes")) {
+            readGradeFile();
+        }
+
+        System.out.println("Goodbye!");
         scanner.close();
     }
-}
 
+    private static void saveGradeToFile(String courseName, double gradePercentage) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("Grade.txt", true))) {
+            writer.printf("%s: %.1f%%\n", courseName, gradePercentage);
+        } catch (IOException e) {
+            System.err.println("Error saving grade to file: " + e.getMessage());
+        }
+    }
+
+    private static void readGradeFile() {
+        try (Scanner fileScanner = new Scanner(new File("Grade.txt"))) {
+            System.out.println("\nGrades from Grade.txt:");
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                System.out.println(line);
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("Grade.txt file not found.");
+        }
+    }
+}
